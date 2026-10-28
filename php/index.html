@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Laboratorio 09 - Desarrollo de Aplicaciones Web: Arquitectura Cliente-Servidor y PHP en Laragon">
+    <title>UNCP FIS | Práctica 09 - Backend PHP & Laragon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #0d1117;
+            --bg-card: #161b22;
+            --bg-card-hover: #1c2129;
+            --border-color: #30363d;
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+            --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(22, 27, 34, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 1.25rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .badge-logo {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #ffffff;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .brand-title h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .brand-title p {
+            font-size: 0.825rem;
+            color: var(--text-muted);
+        }
+
+        .server-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.9); }
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .card h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.45rem;
+            color: #d1d5db;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #0b0e14;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.4rem;
+            border-radius: 10px;
+            font-size: 0.925rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            font-family: var(--font-main);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #ffffff;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #30363d;
+            color: #ffffff;
+        }
+
+        .btn-danger-test {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            font-size: 0.85rem;
+            padding: 0.6rem 1rem;
+        }
+
+        .btn-danger-test:hover {
+            background-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.25rem;
+        }
+
+        .info-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card p, .info-card ul {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .info-card ul {
+            padding-left: 1.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .info-card li {
+            margin-bottom: 0.35rem;
+        }
+
+        .code-pill {
+            font-family: var(--font-mono);
+            background: #090d13;
+            padding: 0.2rem 0.45rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #93c5fd;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.825rem;
+            color: var(--text-muted);
+            background-color: var(--bg-card);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="brand-badge">
+                <div class="badge-logo">P</div>
+                <div class="brand-title">
+                    <h1>UNCP | Facultad de Ingeniería de Sistemas</h1>
+                    <p>Desarrollo Web Fullstack • Semana 09: Backend PHP & Servidor Laragon</p>
+                </div>
+            </div>
+            <div class="server-status" title="Servidor Apache y PHP en ejecución">
+                <span class="status-dot"></span>
+                <span>Laragon: Apache 80 | MySQL 3306</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Formulario Principal de Práctica (Paso 2) -->
+        <section class="card">
+            <h2>
+                <span>📝 Formulario de Registro & Ciclo de Solicitud HTTP</span>
+            </h2>
+            <p class="card-description">
+                Envío de datos mediante el método <span class="code-pill">POST</span> al backend <span class="code-pill">procesar.php</span>. 
+                Se aplicará saneamiento de variables superglobales con <span class="code-pill">filter_input()</span> y <span class="code-pill">htmlspecialchars()</span> según los requisitos del laboratorio.
+            </p>
+
+            <form action="procesar.php" method="POST" id="mainForm">
+                <div class="form-group">
+                    <label for="nombre">Nombre Completo del Estudiante / Usuario *</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Ej. Juan Pérez Quispe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Correo Electrónico Institucional *</label>
+                    <input type="email" id="email" name="email" placeholder="estudiante@uncp.edu.pe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="materia">Asignatura / Módulo Backend</label>
+                    <select id="materia" name="materia">
+                        <option value="Desarrollo de Aplicaciones Web (IS093A)">Desarrollo de Aplicaciones Web (IS093A)</option>
+                        <option value="Arquitectura Cliente-Servidor">Arquitectura Cliente-Servidor</option>
+                        <option value="Sistemas Distribuidos">Sistemas Distribuidos</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="comentario">Mensaje / Consulta Técnica</label>
+                    <textarea id="comentario" name="comentario" placeholder="Escriba un comentario o payload de prueba (ej. &lt;b&gt;prueba de escape XSS&lt;/b&gt;)"></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary" id="btnSubmit">
+                        <span>🚀 Enviar Solicitud (HTTP POST 200)</span>
+                    </button>
+                    <a href="procesar.php?test=redirect" class="btn btn-secondary" title="Prueba de redirección 302">
+                        <span>🔄 Probar 302 Redirect</span>
+                    </a>
+                    <a href="procesar.php" class="btn btn-danger-test" title="Acceso directo por GET prohibido para probar 405 Method Not Allowed">
+                        <span>⚠️ Probar 405 Method Not Allowed</span>
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        <!-- Panel Lateral de Información y Arquitectura -->
+        <aside class="info-panel">
+            <div class="info-card">
+                <h3>⚙️ Entorno de Ejecución Actual</h3>
+                <p><strong>Stack:</strong> Laragon Portable Suite</p>
+                <p><strong>Servidor Web:</strong> Apache 2.4 (Virtual Host en puerto 80)</p>
+                <p><strong>Motor de Scripting:</strong> PHP 8.3 / FastCGI</p>
+                <p><strong>Ruta DocumentRoot:</strong> <span class="code-pill">C:\laragon\www\lab09</span></p>
+            </div>
+
+            <div class="info-card">
+                <h3>🔄 Ciclo de Vida PHP (Stateless)</h3>
+                <ul>
+                    <li><strong>1. Parse:</strong> Apache recibe HTTP request y delega el script al módulo de PHP.</li>
+                    <li><strong>2. Execute:</strong> Se inicializan superglobales (<span class="code-pill">$_POST</span>, <span class="code-pill">$_SERVER</span>) y ejecuta la lógica en memoria efímera.</li>
+                    <li><strong>3. Output:</strong> Genera HTML y cabeceras HTTP hacia el cliente.</li>
+                    <li><strong>4. Destroy:</strong> PHP libera memoria de variables tras finalizar la respuesta.</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>🛡️ Restricciones Técnicas del Lab</h3>
+                <ul>
+                    <li>Prohibido el uso de <span class="code-pill">register_globals</span>.</li>
+                    <li>Sanitización estricta con <span class="code-pill">filter_input()</span>.</li>
+                    <li>Protección contra inyección con <span class="code-pill">htmlspecialchars()</span>.</li>
+                    <li>Manejo de códigos de estado: <strong>200 OK</strong>, <strong>302 Redirect</strong>, <strong>405 Method Not Allowed</strong>.</li>
+                </ul>
+            </div>
+        </aside>
+    </main>
+
+    <p style="text-align:center; padding-bottom: 1rem;">
+        <a href="http://localhost:8080/semana09-jsp/index.jsp" style="color:#fdba74; font-weight:700;">Abrir comparación JSP en Tomcat :8080</a>
+    </p>
+
+    <footer>
+        <p>Facultad de Ingeniería de Sistemas - Universidad Nacional del Centro del Perú &copy; 2026. Práctica de Laboratorio Semana 09.</p>
+    </footer>
+
+    <script src="assets/app.js"></script>
+</body>
+</html>
